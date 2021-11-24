@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+	<title>Example Login Form</title>
+  </head>
+  <body>
+	<form id="signin-form">
+  	  <!-- user input-->
+  	  Username:<br>
+  	  <input type="text" id="email" name="email" placeholder="Username" required><br><br>
+  	  Password:<br>
+  	  <input type="password" id="password" name="password" placeholder="Password" required><br><br>
+  	  <!-- submit button -->
+  	  <input type="submit" value="login">
+	</form>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios@0.21.4/dist/axios.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+            $("#signin-form").submit(function(e){
+			e.preventDefault()
+			let email = $("#email").val();
+			let password = $("#password").val() 
+			// console.log(email, password)
+			// let url = `${baseUrl}/api/v1/login`
+			let url = `http://localhost:3030/login`
+
+			if(email && password){
+				let body = {email, password}
+				// console.log(body)
+				axios.post(url, body).then((res)=>{
+					console.log(res)
+                    let data = {
+                        id : res.data.user._id,
+                        name:res.data.user.name,
+                        email :res.data.user.email,
+                        mobile:res.data.user.mobile
+                    }
+                    localStorage.setItem('chatUser',JSON.stringify(data))
+					// let user = { id:res.data.user.id, email:res.data.user.email }
+					// localStorage.setItem("user", JSON.stringify(user))
+					window.location = `http://localhost:3030/chat`
+				}).catch((err)=>{
+					// console.log(err.response.data)
+					alert("error",err.response.data.error)
+				})
+			}else{
+				alert("error","Please fill all the fields")
+			}
+			
+		})
+    </script>
+  </body>
+</html>
