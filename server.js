@@ -86,11 +86,10 @@ app.post('/login', passport.authenticate('local', { failureRedirect: '/' }), fun
     res.status(200).json({ user: req.user })
 });
 
+var ChatUser
+
 const PORT = 3030
 
-// http.listen(PORT, () => {
-//     console.log(`server listen on localhost:${PORT}`)
-// })
 // connect to database
 mongoose.connect('mongodb+srv://gauravgaonkar:gauravgaonkar@cluster0.dfdws.mongodb.net/Mango?retryWrites=true&w=majority', {
     useNewUrlParser: true,
