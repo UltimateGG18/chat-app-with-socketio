@@ -64,6 +64,30 @@ passport.deserializeUser(function (id, done) {
     });
 });
 
+var ChatUserMessageDetails
+//socket
+
+//console.log(io)
+io.on('connection', (socket) => {
+    console.log("connected..")
+    //console.log(socket)
+
+    socket.on('message', (msg) => {
+        // console.log(msg)
+        socket.broadcast.emit('message', msg)
+        ChatUserMessageDetails = msg
+        console.log("ChatUserMessageDetails : ", ChatUserMessageDetails)
+    })
+
+    // socket.on('jsonData', (jsonData) => {
+    //     console.log('jsonData', jsonData)
+    // })
+
+    socket.on('disconnect', () => {
+        console.log('disconnected..')
+    })
+})
+
 // Route to Login
 app.get("/login", (req, res) => {
     res.sendFile(__dirname + '/login.html')
@@ -86,7 +110,22 @@ app.post('/login', passport.authenticate('local', { failureRedirect: '/' }), fun
     res.status(200).json({ user: req.user })
 });
 
-var ChatUser
+//to store messages in database
+app.post('/saveMessage', (req, res) => {
+    User.findOneAndUpdate(
+        { email: ChatUserMessageDetails.email },
+        {
+            $push: {
+                messages: ChatUserMessageDetails
+            }
+        }
+    ).then(response => {
+        res.status(200).json({ message: "message inserted successfully", user: response })
+    }).catch(err => {
+        console.log(err)
+    })
+})
+
 
 const PORT = 3030
 
@@ -98,23 +137,3 @@ mongoose.connect('mongodb+srv://gauravgaonkar:gauravgaonkar@cluster0.dfdws.mongo
     http.listen(PORT, () => console.log(`This app is listening on port ${PORT}`));
 })
 
-//socket
-
-
-//console.log(io)
-io.on('connection', (socket) => {
-    console.log("connected..")
-    //console.log(socket)
-
-    socket.on('message', (msg) => {
-        socket.broadcast.emit('message', msg)
-    })
-
-    socket.on('jsonData', (jsonData) => {
-        console.log('jsonData', jsonData)
-    })
-
-    socket.on('disconnect', () => {
-        console.log('disconnected..')
-    })
-})

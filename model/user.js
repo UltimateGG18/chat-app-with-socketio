@@ -9,7 +9,8 @@ const User = new Schema({
     email: String,
     mobile: Number,
     password: String,
-    address: String
+    address: String,
+    messages: [Object]
 });
 
 module.exports = mongoose.model('user', User);

@@ -7,6 +7,8 @@ let buttonsend = document.querySelector('#sendjson')
 let chatuser = JSON.parse(localStorage.getItem('chatUser'));
 console.log("chatuser : ", chatuser)
 let userName = chatuser.name;
+let email = chatuser.email;
+let contact = chatuser.mobile
 
 textarea.addEventListener('keyup', (e) => {
     if (e.key === 'Enter') {
@@ -17,7 +19,10 @@ textarea.addEventListener('keyup', (e) => {
 sendMessage = (message) => {
     let msg = {
         user: userName,
-        message: message.trim()
+        email: email,
+        contact: contact,
+        message: message.trim(),
+        date: new Date().toString()
     }
     // Append 
     appendMessage(msg, 'outgoing')
@@ -26,6 +31,14 @@ sendMessage = (message) => {
 
     // Send to server 
     socket.emit('message', msg)
+
+    //to store messages in database
+    let url = `http://localhost:3030/saveMessage`
+    axios.post(url).then((res) => {
+        console.log(res)
+    }).catch((err) => {
+        console.log(err.response.data)
+    })
 
 }
 
@@ -53,21 +66,19 @@ scrollToBottom = () => {
 }
 
 //to send json data
+// buttonsend.addEventListener('click', (e) => {
+//     let obj = {
+//         name: "Gaurav Gavkar",
+//         department: "NodeJs",
+//         company: "Dynamisch",
+//         contact: 8433806625
+//     }
+//     console.log(obj)
+//     sendJson(obj)
+// })
 
-
-buttonsend.addEventListener('click', (e) => {
-    let obj = {
-        name: "Gaurav Gavkar",
-        department: "NodeJs",
-        company: "Dynamisch",
-        contact: 8433806625
-    }
-    console.log(obj)
-    sendJson(obj)
-})
-
-const sendJson = (jsonData) => {
-    console.log("jsonData in sendJson", jsonData)
-    // Send to server 
-    socket.emit('jsonData', jsonData)
-}
+// const sendJson = (jsonData) => {
+//     console.log("jsonData in sendJson", jsonData)
+//     // Send to server 
+//     socket.emit('jsonData', jsonData)
+// }

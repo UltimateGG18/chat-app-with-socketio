@@ -41,7 +41,7 @@
 					// localStorage.setItem("user", JSON.stringify(user))
 					window.location = `http://localhost:3030/chat`
 				}).catch((err)=>{
-					// console.log(err.response.data)
+					console.log(err.response.data)
 					alert("error",err.response.data.error)
 				})
 			}else{
