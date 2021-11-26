@@ -4,6 +4,7 @@ const session = require('express-session');  // session middleware
 const passport = require('passport');  // authentication
 const connectEnsureLogin = require('connect-ensure-login');// authorization
 LocalStrategy = require('passport-local').Strategy;
+const _ = require("lodash");
 
 const User = require('./model/user');
 
@@ -65,27 +66,64 @@ passport.deserializeUser(function (id, done) {
 });
 
 var ChatUserMessageDetails
+var receiverId
+var chatuserId
 //socket
-
+let users = {};
+let chatusers = {}
 //console.log(io)
 io.on('connection', (socket) => {
     console.log("connected..")
     //console.log(socket)
 
+    socket.on("loggedInUser", (userid) => {
+        users[userid] = socket.id
+        chatuserId = userid
+        console.log(users)
+
+        // CHECK IS USER EXHIST 
+        if (!chatusers[chatuserId]) chatusers[chatuserId] = [];
+
+        // PUSH SOCKET ID FOR PARTICULAR USER ID
+        chatusers[chatuserId].push(socket.id);
+
+        // USER IS ONLINE BROAD CAST TO ALL CONNECTED USERS
+        io.sockets.emit("online", chatuserId);
+
+        // DISCONNECT EVENT
+        socket.on('disconnect', (reason) => {
+            console.log("disconnected")
+            // REMOVE FROM SOCKET USERS
+            _.remove(chatusers[chatuserId], (u) => u === socket.id);
+            if (chatusers[chatuserId].length === 0) { //change condition
+                // ISER IS OFFLINE BROAD CAST TO ALL CONNECTED USERS
+                io.sockets.emit("offline", chatuserId);
+                // REMOVE OBJECT
+                delete chatusers[chatuserId];
+            }
+
+            socket.disconnect(); // DISCONNECT SOCKET
+
+        });
+    })
+
+    socket.on('receiver', (receiverid) => {
+        console.log(receiverid)
+        receiverId = receiverid
+    })
+
+
     socket.on('message', (msg) => {
         // console.log(msg)
-        socket.broadcast.emit('message', msg)
+        socket.broadcast.to(users[receiverId]).emit('message', msg)
         ChatUserMessageDetails = msg
-        console.log("ChatUserMessageDetails : ", ChatUserMessageDetails)
+        //console.log("ChatUserMessageDetails : ", ChatUserMessageDetails)
     })
 
     // socket.on('jsonData', (jsonData) => {
     //     console.log('jsonData', jsonData)
     // })
 
-    socket.on('disconnect', () => {
-        console.log('disconnected..')
-    })
 })
 
 // Route to Login

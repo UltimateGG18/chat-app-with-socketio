@@ -9,6 +9,11 @@ console.log("chatuser : ", chatuser)
 let userName = chatuser.name;
 let email = chatuser.email;
 let contact = chatuser.mobile
+let chatUserId = chatuser.id
+let receiverId
+// do {
+//     receiverId = prompt('enter receiver id')
+// } while (!receiverId)
 
 textarea.addEventListener('keyup', (e) => {
     if (e.key === 'Enter') {
@@ -16,12 +21,20 @@ textarea.addEventListener('keyup', (e) => {
     }
 })
 
+//to send userid to server
+socket.emit('loggedInUser', chatUserId)
+//to send receiver id to server
+socket.emit('receiver', receiverId)
+
+
 sendMessage = (message) => {
     let msg = {
+        id: chatUserId,
         user: userName,
         email: email,
         contact: contact,
         message: message.trim(),
+        receiver: receiverId,
         date: new Date().toString()
     }
     // Append 
@@ -64,6 +77,22 @@ socket.on('message', (msg) => {
 scrollToBottom = () => {
     messageArea.scrollTop = messageArea.scrollHeight
 }
+
+//to check whether user online or not
+socket.once("connect", () => {
+
+    // USER IS ONLINE
+    socket.on("online", (userId) => {
+        console.log(userId, "Is Online!"); // update online status
+    });
+
+    // USER IS OFFLINE
+    socket.on("offline", (userId) => {
+        console.log(userId, "Is Offline!"); // update offline status
+    });
+
+});
+
 
 //to send json data
 // buttonsend.addEventListener('click', (e) => {
