@@ -81,11 +81,12 @@ io.on('connection', (socket) => {
         chatuserId = userid
         console.log(users)
 
-        // CHECK IS USER EXHIST 
+        // CHECK IS USER EXIST 
         if (!chatusers[chatuserId]) chatusers[chatuserId] = [];
 
         // PUSH SOCKET ID FOR PARTICULAR USER ID
         chatusers[chatuserId].push(socket.id);
+        console.log("chatuser success", chatusers)
 
         // USER IS ONLINE BROAD CAST TO ALL CONNECTED USERS
         io.sockets.emit("online", chatuserId);
@@ -95,8 +96,11 @@ io.on('connection', (socket) => {
             console.log("disconnected")
             // REMOVE FROM SOCKET USERS
             _.remove(chatusers[chatuserId], (u) => u === socket.id);
-            if (chatusers[chatuserId].length === 0) { //change condition
-                // ISER IS OFFLINE BROAD CAST TO ALL CONNECTED USERS
+            console.log('chatusers', chatusers);
+            console.log(chatusers[chatuserId].length == 0)
+            if (chatusers[chatuserId].length == 0) { //change condition
+                // USER IS OFFLINE BROAD CAST TO ALL CONNECTED USERS
+                console.log("chatuserId>>>>>>>", chatuserId)
                 io.sockets.emit("offline", chatuserId);
                 // REMOVE OBJECT
                 delete chatusers[chatuserId];
